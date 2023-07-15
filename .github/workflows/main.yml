@@ -1,33 +1,41 @@
-name: Python
+---
+name: Python Test & Save
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build:
+  build_and_test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.8", "3.9", "3.10"]
+        python-version: [3.8, 3.9, 3.10]
 
     steps:
-      - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v2
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
 
-      - name: Display Python version
-        run: python -c "import sys; print(sys.version)"
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      - name: Save artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: python-version-output
-          path: |
-            python_output_3.8.txt:
-              python -c "import sys; print(sys.version)"
-            python_output_3.9.txt:
-              python -c "import sys; print(sys.version)"
-            python_output_3.10.txt:
-              python -c "import sys; print(sys.version)"
+    - name: Run script
+      run: |
+        python your-script.py > output-${{ matrix.python-version }}.txt
+        
+    - name: Upload artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: artifact-output-${{ matrix.python-version }}
+        path: output-${{ matrix.python-version }}.txt
