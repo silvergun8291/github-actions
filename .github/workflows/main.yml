@@ -32,7 +32,7 @@ jobs:
 
     - name: Run script
       run: |
-        python your-script.py > output-${{ matrix.python-version }}.txt
+        python hello.py > output-${{ matrix.python-version }}.txt
         
     - name: Upload artifact
       uses: actions/upload-artifact@v2
